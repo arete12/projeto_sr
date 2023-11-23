@@ -1,0 +1,28 @@
+package com.segredes.app1.app1.db;
+
+import com.segredes.app1.app1.model.User;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class UserRepository {
+
+    public User findUser(String username){
+
+        // hardcoded, n precisamos de DB 
+        User userAdmin = new User("admin","admin");
+        userAdmin.setAdmin(true);
+        
+        User userRegular = new User("user","1234");
+        userRegular.setAdmin(false);
+
+        User[] userDB = new User[]{userAdmin, userRegular};
+
+        for(User u : userDB){
+            if(u.getUsername().equals(username)){
+                return u;
+            }
+        }
+
+        return null;
+    }
+}
