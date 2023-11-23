@@ -26,8 +26,8 @@ public class JWTUtil {
     // private final String TOKEN_PREFIX = "Bearer ";
 
     public JWTUtil() {
-        this.jwtParser = Jwts.parser().setSigningKey(secret_key);
-        // this.jwtParser = Jwts.parser();
+        //this.jwtParser = Jwts.parser().setSigningKey(secret_key);
+        this.jwtParser = Jwts.parser();
     }
 
     public String createToken(User user) {
@@ -39,13 +39,13 @@ public class JWTUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(tokenValidity)
-                .signWith(SignatureAlgorithm.HS256, secret_key)
+                //.signWith(SignatureAlgorithm.HS256, secret_key)
                 .compact();
     }
 
     private Claims parseJwtClaims(String token) {
-        // return jwtParser.parseClaimsJwt(token).getBody();
-        return jwtParser.parseClaimsJws(token).getBody();
+        return jwtParser.parseClaimsJwt(token).getBody();
+        //return jwtParser.parseClaimsJws(token).getBody();
     }
 
     public Claims resolveClaims(HttpServletRequest req) {
