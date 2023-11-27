@@ -22,8 +22,7 @@ public class JWTUtil {
     public static int accessTokenValidity = 60 * 60;
 
     public JWTUtil() {
-        // this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security
-        // Patch
+        // this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security Patch
         this.jwtParser = Jwts.parser();
     }
 
