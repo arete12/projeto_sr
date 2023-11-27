@@ -54,12 +54,13 @@ public class AuthController {
                             new UsernamePasswordAuthenticationToken(loginReq.getUsername(), loginReq.getPassword()));
 
             User user = UserRepository.findUser(authentication.getName());
-
             if (user == null) {
+                System.out.println("/api/login/ - AuthController.login() - BadCredentials");
                 throw new BadCredentialsException("");
             }
 
             String token = jwtUtil.createToken(user);
+            System.out.println("/api/login/ - AuthController.login() - Created token");
 
             // Define o access token como um cookie para manter a sessao "stateful"
             Cookie cookie = new Cookie("access_token", token);

@@ -17,16 +17,13 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JWTUtil {
 
-    private final String secret_key = "password123";
+    private final JwtParser jwtParser;
+    // private final String secret_key = "password123"; // TODO: Security Patch
     public static int accessTokenValidity = 60 * 60;
 
-    private final JwtParser jwtParser;
-
-    // private final String TOKEN_HEADER = "Authorization";
-    // private final String TOKEN_PREFIX = "Bearer ";
-
     public JWTUtil() {
-        // this.jwtParser = Jwts.parser().setSigningKey(secret_key);
+        // this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security
+        // Patch
         this.jwtParser = Jwts.parser();
     }
 
@@ -42,14 +39,14 @@ public class JWTUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(tokenValidity)
-                // .signWith(SignatureAlgorithm.HS256, secret_key)
+                // .signWith(SignatureAlgorithm.HS256, secret_key) // TODO: Security Patch
                 .compact();
     }
 
     private Claims parseJwtClaims(String token) {
         System.out.println("JWTUtil.parseJwtClaims()");
         return jwtParser.parseClaimsJwt(token).getBody();
-        // return jwtParser.parseClaimsJws(token).getBody();
+        // return jwtParser.parseClaimsJws(token).getBody(); // TODO: Security Patch
     }
 
     public Claims resolveClaims(HttpServletRequest req) {
@@ -57,7 +54,7 @@ public class JWTUtil {
 
         try {
             String token = resolveToken(req);
-            System.out.println("JWTUtil.resolveClaims() - resolveToken(): is null? " + token == null);
+            System.out.println("JWTUtil.resolveClaims() - resolveToken");
             return parseJwtClaims(token);
         } catch (ExpiredJwtException ex) {
             req.setAttribute("expired", ex.getMessage());
@@ -79,22 +76,12 @@ public class JWTUtil {
             for (Cookie c : request.getCookies()) {
                 if (c.getName().equals("access_token") && c.getValue().length() > 0) {
                     System.out.println("JWTUtil.resolveToken() - Found access token in cookies");
-
-                    System.out.println(c.getName() + " " + c.getValue());
                     return c.getValue();
-
                 }
             }
         }
 
         System.out.println("JWTUtil.resolveToken() - No access token in cookies");
-
-        // resolver cookie em vez de header "Authorization"
-
-        // String bearerToken = request.getHeader(TOKEN_HEADER);
-        // if (bearerToken != null && bearerToken.startsWith(TOKEN_PREFIX)) {
-        // return bearerToken.substring(TOKEN_PREFIX.length());
-        // }
         return null;
     }
 
@@ -107,9 +94,5 @@ public class JWTUtil {
             throw e;
         }
     }
-
-    // private List<String> getRoles(Claims claims) {
-    // return (List<String>) claims.get("roles");
-    // }
 
 }
