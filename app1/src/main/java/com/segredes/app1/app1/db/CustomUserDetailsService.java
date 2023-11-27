@@ -21,14 +21,23 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("CustomUserDetailsService.loadUserByUsername()");
+
         User user = userRepository.findUser(username);
-        List<String> roles = new ArrayList<>();
-        roles.add("USER");
+        if(user == null){
+            System.out.println("CustomUserDetailsService.loadUserByUsername() - User not found");
+            throw new UsernameNotFoundException("CustomUserDetailsService.loadUserByUsername() - User not found");
+        }
+
+        //List<String> roles = new ArrayList<>();
+        //roles.add("USER");
+        
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .roles(roles.toArray(new String[0]))
+                //.roles(roles.toArray(new String[0]))
                 .build();
+        System.out.println("CustomUserDetailsService.loadUserByUsername() - User found!");
         return userDetails;
     }
 }

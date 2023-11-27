@@ -22,6 +22,7 @@ import com.segredes.app1.app1.model.User;
 import ch.qos.logback.core.status.Status;
 
 import com.segredes.app1.app1.auth.JWTUtil;
+import com.segredes.app1.app1.db.UserRepository;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,21 +52,25 @@ public class AuthController {
             Authentication authentication = authenticationManager
                     .authenticate(
                             new UsernamePasswordAuthenticationToken(loginReq.getUsername(), loginReq.getPassword()));
-            String username = authentication.getName();
-            User user = new User(username, "");
+
+            User user = UserRepository.findUser(authentication.getName());
+
+            if (user == null) {
+                throw new BadCredentialsException("");
+            }
+
             String token = jwtUtil.createToken(user);
 
-            LoginRes loginRes = new LoginRes(username, token);
-
+            // Define o access token como um cookie para manter a sessao "stateful"
             Cookie cookie = new Cookie("access_token", token);
             cookie.setMaxAge(JWTUtil.accessTokenValidity);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            response.addCookie(cookie);
 
+            // Adiciona cookie a resposta e redireciona para /dashboard
+            response.addCookie(cookie);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", "/dashboard");
-
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
         } catch (BadCredentialsException e) {
@@ -74,9 +79,11 @@ public class AuthController {
             // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", "/");
+            System.out.println("/api/login/ - AuthController.login() - BadCredentialsException");
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         } catch (Exception e) {
             ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, e.getMessage());
+            System.out.println("/api/login/ - AuthController.login() - Exception");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
@@ -84,6 +91,8 @@ public class AuthController {
     @ResponseBody
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("/api/logout/ - AuthController.logout()");
 
         Cookie cookie = new Cookie("access_token", "");
         cookie.setHttpOnly(true);

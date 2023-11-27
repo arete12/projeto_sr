@@ -6,19 +6,21 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UserRepository {
 
-    public User findUser(String username){
+    public static User findUser(String username) {
 
-        // hardcoded, n precisamos de DB 
-        User userAdmin = new User("admin","admin");
+        // hardcoded, n precisamos de DB
+        User userAdmin = new User("admin", "admin");
         userAdmin.setAdmin(true);
-        
-        User userRegular = new User("user","1234");
+
+        User userRegular = new User("user", "1234");
         userRegular.setAdmin(false);
 
-        User[] userDB = new User[]{userAdmin, userRegular};
+        User[] userDB = new User[] { userAdmin, userRegular };
 
-        for(User u : userDB){
-            if(u.getUsername().equals(username)){
+        for (User u : userDB) {
+            if (u.getUsername().equals(username)) {
+                System.out.println(
+                        "UserRepository.findUser() - Found user " + u.getUsername() + ", isAdmin = " + u.getAdmin());
                 return u;
             }
         }

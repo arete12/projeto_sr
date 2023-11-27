@@ -4,4 +4,4 @@
 app1/mvnw -f app1/pom.xml clean package
 
 # build docker containers
-docker-compose up -d --force-recreate --build
+docker-compose up --force-recreate --build
