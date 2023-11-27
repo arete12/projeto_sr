@@ -29,13 +29,13 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("CustomUserDetailsService.loadUserByUsername() - User not found");
         }
 
-        //List<String> roles = new ArrayList<>();
-        //roles.add("USER");
+        // List<String> roles = new ArrayList<>();
+        // roles.add("ADMIN");
         
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                //.roles(roles.toArray(new String[0]))
+                //.roles(roles.get(0))
                 .build();
         System.out.println("CustomUserDetailsService.loadUserByUsername() - User found!");
         return userDetails;
