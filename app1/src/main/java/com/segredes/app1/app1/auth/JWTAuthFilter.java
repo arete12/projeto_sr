@@ -36,21 +36,27 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         Map<String, Object> errorDetails = new HashMap<>();
 
+        System.out.println("JWTAuthFilter.doFilterInternal()");
+
+
         try {
+            // Obtem access token do HTTP request (cookie neste caso)
             String accessToken = JWTUtil.resolveToken(request);
             if (accessToken == null) {
                 filterChain.doFilter(request, response);
+                System.out.println("JWTAuthFilter.doFilterInternal() - Failed resolveToken");
                 return;
             }
-            System.out.println("token : " + accessToken);
-            Claims claims = JWTUtil.resolveClaims(request);
 
+            // Parse e validacao do access token
+            Claims claims = JWTUtil.resolveClaims(request);
             if (claims != null & JWTUtil.validateClaims(claims)) {
                 String username = claims.getSubject();
-                System.out.println("username : " + username);
                 Authentication authentication = new UsernamePasswordAuthenticationToken(username, "",
                         new ArrayList<>());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                System.out.println("JWTAuthFilter.doFilterInternal() - Successfully validated claims");
             }
 
         } catch (Exception e) {
@@ -58,8 +64,9 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             errorDetails.put("details", e.getMessage());
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
             mapper.writeValue(response.getWriter(), errorDetails);
+
+            System.out.println("JWTAuthFilter.doFilterInternal() - Exception");
 
         }
         filterChain.doFilter(request, response);

@@ -4,7 +4,7 @@ package com.segredes.app1.app1.model;
 public class User {
     private String username;
     private String password;
-    private boolean isAdmin;
+    private String isAdmin;
 
     public User(String username, String password) {
         this.username = username;
@@ -27,12 +27,17 @@ public class User {
         this.password = password;
     }
 
-    public boolean getAdmin() {
+    public String getAdmin() {
         return isAdmin;
     }
 
     public void setAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
+        if(isAdmin){
+            this.isAdmin = "true";
+        }else{
+            this.isAdmin = "false";
+        }
+        
     }
 
 
