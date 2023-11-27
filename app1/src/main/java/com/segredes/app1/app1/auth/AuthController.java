@@ -54,6 +54,7 @@ public class AuthController {
                             new UsernamePasswordAuthenticationToken(loginReq.getUsername(), loginReq.getPassword()));
 
             User user = UserRepository.findUser(authentication.getName());
+            
             if (user == null) {
                 System.out.println("/api/login/ - AuthController.login() - BadCredentials");
                 throw new BadCredentialsException("");
