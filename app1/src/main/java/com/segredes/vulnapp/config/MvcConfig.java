@@ -12,8 +12,8 @@ public class MvcConfig implements WebMvcConfigurer {
 
 	public void addViewControllers(ViewControllerRegistry registry) {
 		logger.info("addViewControllers() - Mapping routes to view templates");
-		registry.addViewController("/").setViewName("index");
-		registry.addViewController("/login").setViewName("login");
+		//registry.addViewController("/").setViewName("index");
+		//registry.addViewController("/login").setViewName("login");
 	}
 
 }
