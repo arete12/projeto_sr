@@ -29,13 +29,12 @@ public class IndexController {
         logger.info("index() - Received request to '/' (index)");
 
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        //User user = UserRepository.findUser(userDetails.getUsername());
+        // User user = UserRepository.findUser(userDetails.getUsername());
 
         logger.info("index() - Security context, username: {}", username);
 
         String profilePicURL = UserRepository.findUser(username).getPicUrl();
-
-        profilePicURL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngmart.com%2Ffiles%2F11%2FDoge-Meme-PNG-Photos.png&f=1&nofb=1&ipt=d61caf89b1d20322aefc4594b7beb15d013122a923023bd74dabacef10a88194&ipo=images";
+        profilePicURL = (profilePicURL == null) ? "/default-user.jpeg" : profilePicURL;
 
         model.addAttribute("profilePicURL", profilePicURL);
 

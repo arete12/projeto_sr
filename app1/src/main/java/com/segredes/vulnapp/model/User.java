@@ -15,7 +15,7 @@ public class User implements Serializable {
     }
 
     public User(String username, String password, boolean isAdmin) {
-        super();
+        this(username, password);
         this.isAdmin = isAdmin;
     }
 

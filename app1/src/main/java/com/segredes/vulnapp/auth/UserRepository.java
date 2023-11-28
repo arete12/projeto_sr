@@ -21,16 +21,24 @@ public class UserRepository {
         logger.info("findUser() - User: {}", username);
 
         if (userDB == null) {
+            logger.info("findUser() - userDB is null");
+
             userDB = new HashSet<>();
             userDB.add(new User("user", "1234"));
             userDB.add(new User("admin", "admin", true));
         }
 
+        
+
         for (User u : userDB) {
             if (u.getUsername().equals(username)) {
+                logger.info("findUser() - Found User: {}", username);
+
                 return u;
             }
         }
+
+        logger.info("findUser() - Not Found User: {}", username);
 
         return null;
     }
