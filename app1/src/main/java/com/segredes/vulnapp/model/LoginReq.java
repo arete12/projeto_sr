@@ -1,4 +1,4 @@
-package com.segredes.app1.app1.model;
+package com.segredes.vulnapp.model;
 
 public class LoginReq {
     private String username;

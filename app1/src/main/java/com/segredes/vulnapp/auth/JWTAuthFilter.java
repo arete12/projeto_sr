@@ -1,7 +1,7 @@
-package com.segredes.app1.app1.auth;
+package com.segredes.vulnapp.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.segredes.app1.app1.model.User;
+import com.segredes.vulnapp.model.User;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;

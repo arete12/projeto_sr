@@ -1,4 +1,4 @@
-package com.segredes.app1.app1.auth;
+package com.segredes.vulnapp.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.segredes.app1.app1.model.User;
+import com.segredes.vulnapp.model.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,7 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                // .roles(roles.toArray(new String[0]))
                 .build();
 
         System.out

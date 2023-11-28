@@ -1,6 +1,6 @@
-package com.segredes.app1.app1.auth;
+package com.segredes.vulnapp.auth;
 
-import com.segredes.app1.app1.model.User;
+import com.segredes.vulnapp.model.User;
 import org.springframework.stereotype.Repository;
 
 @Repository

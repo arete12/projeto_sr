@@ -1,4 +1,4 @@
-package com.segredes.app1.app1.model;
+package com.segredes.vulnapp.model;
 
 import java.io.IOException;
 import java.io.Serializable;

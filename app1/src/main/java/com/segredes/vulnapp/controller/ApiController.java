@@ -1,4 +1,4 @@
-package com.segredes.app1.app1.controller;
+package com.segredes.vulnapp.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,15 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.segredes.app1.app1.model.LoginReq;
-import com.segredes.app1.app1.model.ChangePic;
-import com.segredes.app1.app1.model.LoginRes;
-import com.segredes.app1.app1.model.User;
+import com.segredes.vulnapp.model.LoginReq;
+import com.segredes.vulnapp.model.ChangePic;
+import com.segredes.vulnapp.model.LoginRes;
+import com.segredes.vulnapp.model.User;
 
-import ch.qos.logback.core.status.Status;
-
-import com.segredes.app1.app1.auth.JWTUtil;
-import com.segredes.app1.app1.auth.UserRepository;
+import com.segredes.vulnapp.auth.JWTUtil;
+import com.segredes.vulnapp.auth.UserRepository;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,13 +28,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/api")
-public class AuthController {
+public class ApiController {
 
     private final AuthenticationManager authenticationManager;
 
     private JWTUtil jwtUtil;
 
-    public AuthController(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public ApiController(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
 
@@ -69,10 +67,10 @@ public class AuthController {
             cookie.setHttpOnly(true);
             cookie.setPath("/");
 
-            // Adiciona cookie a resposta e redireciona para /dashboard
+            // Adiciona cookie a resposta e redireciona para /
             response.addCookie(cookie);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/dashboard");
+            headers.add("Location", "/");
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
         } catch (BadCredentialsException e) {
@@ -125,7 +123,7 @@ public class AuthController {
 
         response.addCookie(cookie);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/dashboard");
+        headers.add("Location", "/");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
