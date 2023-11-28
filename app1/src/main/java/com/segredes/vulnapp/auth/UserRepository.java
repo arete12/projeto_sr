@@ -28,8 +28,6 @@ public class UserRepository {
             userDB.add(new User("admin", "admin", true));
         }
 
-        
-
         for (User u : userDB) {
             if (u.getUsername().equals(username)) {
                 logger.info("findUser() - Found User: {}", username);
