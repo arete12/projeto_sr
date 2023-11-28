@@ -1,10 +1,21 @@
 package com.segredes.vulnapp.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +31,9 @@ import com.segredes.vulnapp.model.LoginReq;
 import com.segredes.vulnapp.model.ChangePic;
 import com.segredes.vulnapp.model.LoginRes;
 import com.segredes.vulnapp.model.User;
-
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.segredes.vulnapp.auth.JWTUtil;
 import com.segredes.vulnapp.auth.UserRepository;
 
@@ -101,21 +114,81 @@ public class ApiController {
 
     @ResponseBody
     @RequestMapping(value = "/changepic", method = RequestMethod.POST)
-    public ResponseEntity changepic(ChangePic changePic, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity changepic(ChangePic changePic, HttpServletRequest request, HttpServletResponse response)
+            throws StreamWriteException, DatabindException, IOException {
 
         logger.info("changepic() - Received request /api/changepic");
 
         User user = UserRepository.findUser(changePic.getUsername());
-        user.setPicUrl(changePic.getNewurl());
 
-        String token = jwtUtil.createToken(user);
+        // Validar se o URL e de uma imagem valida, senao mostra erro
+        String newImageURL = changePic.getNewurl();
 
-        Cookie cookie = new Cookie("access_token", token);
-        cookie.setMaxAge(JWTUtil.accessTokenValidity);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
+        try {
+            URL url = new URL(newImageURL);
 
-        response.addCookie(cookie);
+            URLConnection connection = (URLConnection) url.openConnection();
+            StringBuilder contents = new StringBuilder();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                contents.append(inputLine);
+            }
+            in.close();
+
+            // TODO: Security Patch
+
+            // https://www.akto.io/blog/how-to-prevent-server-side-request-forgery-ssrf-as-a-developer
+
+            /*
+             * validar se url é http/https e é válido, regex, URL scheme
+             * validar se é IP, ou domain name e resolver, n pode ser IP privado (tipo
+             * 192.168 ou 10.x.x etc)
+             * validar se o content type é png ou jpg
+             * validar o tamanho em bytes da resposta, max imagens até 1 ou 10mb por exemplo
+             * validar magic bytes (primeiros X bytes são de ficheiro png ou jpg)
+             * criar um temporizador para dar delay ao utilizador, evitar que mude imagem
+             * 1000 vezes em 3 segundos = 1000 requests
+             * 
+             */
+
+            String contentType = connection.getHeaderField("Content-Type");
+
+            if (contentType != null && (contentType.startsWith("image/png")
+                    || contentType.startsWith("image/jpeg")
+                    || contentType.startsWith("image/jpg"))) {
+
+                user.setPicUrl(changePic.getNewurl());
+
+                // Atualiza profile pic URL no token JWT e atualiza o cookie
+                String token = jwtUtil.createToken(user);
+                Cookie cookie = new Cookie("access_token", token);
+                cookie.setMaxAge(JWTUtil.accessTokenValidity);
+                cookie.setHttpOnly(true);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+
+            } else {
+                throw new Exception("Invalid image: " + contents);
+            }
+
+        } catch (Exception e) {
+
+            logger.info("changepic() - Invalid image URL {}", newImageURL);
+            user.setPicUrl(null);
+
+            Map<String, Object> errorDetails = new HashMap<>();
+            ObjectMapper mapper = new ObjectMapper();
+
+            errorDetails.put("message", "The provided URL is not a valid image");
+            errorDetails.put("details", e.getMessage());
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            mapper.writeValue(response.getWriter(), errorDetails);
+
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

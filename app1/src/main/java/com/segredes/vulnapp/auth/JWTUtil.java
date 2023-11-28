@@ -37,7 +37,7 @@ public class JWTUtil {
         logger.info("createToken() - User: {}", user.getUsername());
 
         Claims claims = Jwts.claims().setSubject(user.getUsername());
-        claims.put("isAdmin", user.getAdmin());
+        // claims.put("isAdmin", user.getAdmin());
         claims.put("picUrl", user.getPicUrl());
 
         Date tokenCreateTime = new Date();
