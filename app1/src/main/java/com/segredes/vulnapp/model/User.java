@@ -6,14 +6,17 @@ import java.io.Serializable;
 public class User implements Serializable {
     private String username;
     private String password;
-    private boolean isAdmin;
-    private String picUrl;
+    private boolean isAdmin = false;
+    private String picUrl = null;
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.picUrl = "/default-user.jpeg";
+    }
 
+    public User(String username, String password, boolean isAdmin) {
+        super();
+        this.isAdmin = isAdmin;
     }
 
     public String getUsername() {
