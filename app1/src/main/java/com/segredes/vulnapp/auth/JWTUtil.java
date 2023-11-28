@@ -6,7 +6,10 @@ import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -16,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class JWTUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(JWTUtil.class);
 
     private final JwtParser jwtParser;
     // private final String secret_key = "password123"; // TODO: Security Patch
@@ -29,7 +34,7 @@ public class JWTUtil {
 
     public String createToken(User user) {
 
-        System.out.println("JWTUtil.createToken()");
+        logger.info("createToken() - User: {}", user.getUsername());
 
         Claims claims = Jwts.claims().setSubject(user.getUsername());
         claims.put("isAdmin", user.getAdmin());
@@ -45,49 +50,46 @@ public class JWTUtil {
     }
 
     private Claims parseJwtClaims(String token) {
-        System.out.println("JWTUtil.parseJwtClaims()");
+        logger.info("parseJwtClaims() - Token: {}", token);
         return jwtParser.parseClaimsJwt(token).getBody();
         // return jwtParser.parseClaimsJws(token).getBody(); // TODO: Security Patch
     }
 
     public Claims resolveClaims(HttpServletRequest req) {
-        System.out.println("JWTUtil.resolveClaims()");
+        logger.info("resolveClaims()");
 
         try {
             String token = resolveToken(req);
-            System.out.println("JWTUtil.resolveClaims() - resolveToken");
             return parseJwtClaims(token);
         } catch (ExpiredJwtException ex) {
+            logger.info("resolveClaims() - Expired JWT Exception: {}", ex);
             req.setAttribute("expired", ex.getMessage());
-            System.out.println("JWTUtil.resolveClaims() - ExpiredJwtException");
-
             throw ex;
-        } catch (Exception ex) {
-            req.setAttribute("invalid", ex.getMessage());
-            System.out.println("JWTUtil.resolveClaims() - Exception");
 
+        } catch (Exception ex) {
+            logger.info("resolveClaims() - Exception: {}", ex);
+            req.setAttribute("invalid", ex.getMessage());
             throw ex;
         }
     }
 
     public String resolveToken(HttpServletRequest request) {
-        System.out.println("JWTUtil.resolveToken()");
+        logger.info("resolveToken()");
 
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
                 if (c.getName().equals("access_token") && c.getValue().length() > 0) {
-                    System.out.println("JWTUtil.resolveToken() - Found access token in cookies");
+                    logger.info("resolveToken() - Found cookie 'access_token'");
                     return c.getValue();
                 }
             }
         }
 
-        System.out.println("JWTUtil.resolveToken() - No access token in cookies");
+        logger.info("resolveToken() - Did not find cookie 'access_token'");
         return null;
     }
 
     public boolean validateClaims(Claims claims) throws AuthenticationException {
-        System.out.println("JWTUtil.validateClaims() - No access token in cookies");
 
         try {
             return claims.getExpiration().after(new Date());

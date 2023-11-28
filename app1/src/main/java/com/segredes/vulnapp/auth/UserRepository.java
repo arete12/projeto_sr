@@ -1,12 +1,20 @@
 package com.segredes.vulnapp.auth;
 
+import com.segredes.vulnapp.controller.ApiController;
 import com.segredes.vulnapp.model.User;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserRepository {
+    private static Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
-    public static User findUser(String username) {
+    public static User findUser(String username) throws UsernameNotFoundException {
+
+        logger.info("findUser() - User: {}", username);
 
         // hardcoded, n precisamos de DB
         User userAdmin = new User("admin", "admin");
@@ -19,12 +27,11 @@ public class UserRepository {
 
         for (User u : userDB) {
             if (u.getUsername().equals(username)) {
-                System.out.println(
-                        "UserRepository.findUser() - Found user " + u.getUsername() + ", isAdmin = " + u.getAdmin());
                 return u;
             }
         }
 
         return null;
     }
+
 }

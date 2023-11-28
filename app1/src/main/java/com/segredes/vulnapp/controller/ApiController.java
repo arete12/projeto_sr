@@ -1,5 +1,7 @@
 package com.segredes.vulnapp.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -31,8 +33,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ApiController {
 
     private final AuthenticationManager authenticationManager;
-
     private JWTUtil jwtUtil;
+
+    private static Logger logger = LoggerFactory.getLogger(ApiController.class);
 
     public ApiController(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
@@ -44,7 +47,7 @@ public class ApiController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity login(LoginReq loginReq, HttpServletResponse response) {
 
-        System.out.println("/api/login/ - AuthController.login()");
+        logger.info("login() - Received request /api/login");
 
         try {
             Authentication authentication = authenticationManager
@@ -52,14 +55,11 @@ public class ApiController {
                             new UsernamePasswordAuthenticationToken(loginReq.getUsername(), loginReq.getPassword()));
 
             User user = UserRepository.findUser(authentication.getName());
-
             if (user == null) {
-                System.out.println("/api/login/ - AuthController.login() - BadCredentials");
-                throw new BadCredentialsException("");
+                throw new BadCredentialsException(null);
             }
 
             String token = jwtUtil.createToken(user);
-            System.out.println("/api/login/ - AuthController.login() - Created token");
 
             // Define o access token como um cookie para manter a sessao "stateful"
             Cookie cookie = new Cookie("access_token", token);
@@ -74,15 +74,11 @@ public class ApiController {
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
         } catch (BadCredentialsException e) {
-            // ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, "Invalid
-            // username or password");
-            // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", "/");
-            System.out.println("/api/login/ - AuthController.login() - BadCredentialsException");
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
         } catch (Exception e) {
-            System.out.println("/api/login/ - AuthController.login() - Exception");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
@@ -90,8 +86,7 @@ public class ApiController {
     @ResponseBody
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
-
-        System.out.println("/api/logout/ - AuthController.logout()");
+        logger.info("logout() - Received request /api/logout");
 
         Cookie cookie = new Cookie("access_token", "");
         cookie.setHttpOnly(true);
@@ -108,13 +103,12 @@ public class ApiController {
     @RequestMapping(value = "/changepic", method = RequestMethod.POST)
     public ResponseEntity changepic(ChangePic changePic, HttpServletRequest request, HttpServletResponse response) {
 
+        logger.info("changepic() - Received request /api/changepic");
+
         User user = UserRepository.findUser(changePic.getUsername());
         user.setPicUrl(changePic.getNewurl());
 
-        System.out.println("/api/changepic - AuthController.changepic()");
-
         String token = jwtUtil.createToken(user);
-        System.out.println("/api/changepic/ - AuthController.changepic() - Created token");
 
         Cookie cookie = new Cookie("access_token", token);
         cookie.setMaxAge(JWTUtil.accessTokenValidity);

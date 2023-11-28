@@ -3,6 +3,8 @@ package com.segredes.vulnapp.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.segredes.vulnapp.auth.CustomUserDetailsService;
 import com.segredes.vulnapp.auth.JWTAuthFilter;
 import com.segredes.vulnapp.auth.UserRepository;
+import com.segredes.vulnapp.controller.ApiController;
 import com.segredes.vulnapp.model.User;
 
 @Configuration
@@ -32,6 +35,7 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JWTAuthFilter jwtAuthFilter;
+    private static Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     public SecurityConfig(CustomUserDetailsService customUserDetailsService, JWTAuthFilter jwtAuthFilter) {
         this.userDetailsService = customUserDetailsService;
@@ -40,6 +44,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        logger.info("securityFilterChain() - Setup route security");
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/login", "/api/**", "/favicon.ico").permitAll()
@@ -60,6 +65,9 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, NoOpPasswordEncoder noOpPasswordEncoder)
             throws Exception {
+
+        logger.info("authenticationManager() - Setup auth manager");
+
         AuthenticationManagerBuilder authenticationManagerBuilder = http
                 .getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(noOpPasswordEncoder);
