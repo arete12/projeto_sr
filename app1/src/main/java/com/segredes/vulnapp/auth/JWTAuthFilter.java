@@ -33,7 +33,7 @@ import java.util.Set;
 @Component
 public class JWTAuthFilter extends OncePerRequestFilter {
 
-    private Logger logger = LoggerFactory.getLogger(JWTAuthFilter.class);
+    private static Logger logger = LoggerFactory.getLogger(JWTAuthFilter.class);
 
     private final JWTUtil JWTUtil;
     private ObjectMapper mapper;
