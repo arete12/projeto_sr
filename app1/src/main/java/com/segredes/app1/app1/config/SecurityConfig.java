@@ -21,9 +21,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.segredes.app1.app1.auth.CustomUserDetailsService;
 import com.segredes.app1.app1.auth.JWTAuthFilter;
-import com.segredes.app1.app1.db.CustomUserDetailsService;
-import com.segredes.app1.app1.db.UserRepository;
+import com.segredes.app1.app1.auth.UserRepository;
 import com.segredes.app1.app1.model.User;
 
 @Configuration
@@ -42,7 +42,7 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .authorizeHttpRequests((requests) -> requests
-                                                .requestMatchers("/", "/index", "/api/**", "/favicon.ico").permitAll()
+                                                .requestMatchers("/", "/index", "/api/**").permitAll()
                                                 .anyRequest().authenticated())
                                 .formLogin((form) -> form
                                                 .loginPage("/login")

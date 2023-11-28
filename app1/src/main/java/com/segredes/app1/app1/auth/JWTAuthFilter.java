@@ -1,7 +1,6 @@
 package com.segredes.app1.app1.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.segredes.app1.app1.db.UserRepository;
 import com.segredes.app1.app1.model.User;
 
 import io.jsonwebtoken.Claims;

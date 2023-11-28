@@ -1,17 +1,31 @@
 package com.segredes.app1.app1.model;
 
-public class User {
+import java.io.IOException;
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String username;
     private String password;
     private boolean isAdmin;
+    private String picUrl;
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.picUrl = "/default-user.jpeg";
+
     }
 
     public String getUsername() {
         return username;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
     }
 
     public void setUsername(String username) {
@@ -32,6 +46,12 @@ public class User {
 
     public void setAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    private void readObject(java.io.ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        User user = (User) stream.readObject();
+        user.getUsername();
     }
 
 }

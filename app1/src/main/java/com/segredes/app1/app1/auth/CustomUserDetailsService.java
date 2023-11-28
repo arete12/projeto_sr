@@ -1,4 +1,4 @@
-package com.segredes.app1.app1.db;
+package com.segredes.app1.app1.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

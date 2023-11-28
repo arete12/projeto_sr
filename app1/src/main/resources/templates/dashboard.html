@@ -26,8 +26,15 @@
             margin-top: 20px;
         }
 
+        .console {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
         input[type="submit"] {
-            background-color: #f44336;
+            background-color: #4caf50;
             color: white;
             padding: 10px 20px;
             font-size: 16px;
@@ -37,8 +44,28 @@
         }
 
         input[type="submit"]:hover {
-            background-color: #d32f2f;
+            background-color: #45a049;
         }
+
+        .signout {
+            background-color: #f44336 !important; /* Change this color as desired */
+            color: white;
+        }
+
+        .signout:hover {
+            background-color: #d32f2f !important; /* Change this color as desired */
+        }
+
+        #url {
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+
+        .cp {
+            padding: 20px;
+        }
+
     </style>
 </head>
 
@@ -51,19 +78,23 @@
 
             <br>
 
-            <div>
+            <div class="cp">
 
                 <img style="max-width: 100px; max-height: 100px" src="/default-user.jpeg">
+
                 <br>
-                <input type="text" name="URL" placeholder="URL" />
-                <input type="submit" value="Change Picture" />
+                <form th:action="@{/api/changepic}" method="post">
+                    <input type="hidden" name="username" th:value="${#authentication.name}" />
+                    <input type="text" id="url" name="newurl" placeholder="URL" />
+                    <input type="submit" value="Change Picture" />
+                </form>
 
             </div>
 
 
             <br>
 
-            <div style="border:1px solid black;" sec:authorize="hasRole('ROLE_ADMIN')">
+            <div class="console" sec:authorize="hasRole('ROLE_ADMIN')">
                 Admin Console:
                 <br>
                 <input type="submit" value="Export Users" />
@@ -75,7 +106,7 @@
 
         </div>
         <form th:action="@{/api/logout}" method="post">
-            <input type="submit" value="Sign Out" />
+            <input type="submit" class="signout" value="Sign Out" />
         </form>
 
     </div>

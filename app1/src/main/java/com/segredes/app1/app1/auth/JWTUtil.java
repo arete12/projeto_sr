@@ -22,7 +22,8 @@ public class JWTUtil {
     public static int accessTokenValidity = 60 * 60;
 
     public JWTUtil() {
-        // this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security Patch
+        // this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security
+        // Patch
         this.jwtParser = Jwts.parser();
     }
 
@@ -32,6 +33,7 @@ public class JWTUtil {
 
         Claims claims = Jwts.claims().setSubject(user.getUsername());
         claims.put("isAdmin", user.getAdmin());
+        claims.put("picUrl", user.getPicUrl());
 
         Date tokenCreateTime = new Date();
         Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));

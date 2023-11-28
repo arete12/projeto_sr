@@ -1,12 +1,12 @@
 package com.segredes.app1.app1.model;
 
-public class LoginRes {
+public class ChangePic {
     private String username;
-    private String token;
+    private String newurl;
 
-    public LoginRes(String username, String token) {
+    public ChangePic(String username, String newurl) {
         this.username = username;
-        this.token = token;
+        this.newurl = newurl;
     }
 
     public String getUsername() {
@@ -17,11 +17,11 @@ public class LoginRes {
         this.username = username;
     }
 
-    public String getToken() {
-        return token;
+    public String getNewurl() {
+        return newurl;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setNewurl(String newurl) {
+        this.newurl = newurl;
     }
 }

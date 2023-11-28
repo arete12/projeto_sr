@@ -1,4 +1,4 @@
-package com.segredes.app1.app1.db;
+package com.segredes.app1.app1.auth;
 
 import com.segredes.app1.app1.model.User;
 import org.springframework.stereotype.Repository;
