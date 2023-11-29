@@ -15,6 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -227,7 +230,7 @@ public class ApiController {
 
         logger.info("appupdate() - Request to /api/appupdate");
 
-        String githubUrl = "https://url-do-site-de-updates/";
+        String githubUrl = "https://github.com/arete12/?app.jar";
         String newPackagePath = "NEW-vulnapp-0.0.1-SNAPSHOT.jar";
 
         disableSSLCertificateValidation(); // Ignore SSL/TLS errors, self-signed certs
@@ -259,25 +262,32 @@ public class ApiController {
         System.exit(0);
     }
 
-    private static void disableSSLCertificateValidation() {
+    private void disableSSLCertificateValidation() {
         try {
-            TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
+            SSLContext context = SSLContext.getInstance("TLS");
+            HttpsURLConnection.setDefaultHostnameVerifier(
+                    (hostname, session) -> true);
+            context.init(
+                    null,
+                    new X509TrustManager[] {
+                            new X509TrustManager() {
+                                @Override
+                                public void checkClientTrusted(X509Certificate[] chain, String authType)
+                                        throws CertificateException {
+                                }
 
-                public void checkClientTrusted(
-                        java.security.cert.X509Certificate[] certs, String authType) {
-                }
+                                @Override
+                                public void checkServerTrusted(X509Certificate[] chain, String authType)
+                                        throws CertificateException {
+                                }
 
-                public void checkServerTrusted(
-                        java.security.cert.X509Certificate[] certs, String authType) {
-                }
-            } };
-
-            SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+                                public X509Certificate[] getAcceptedIssuers() {
+                                    return new X509Certificate[0];
+                                }
+                            }
+                    },
+                    new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
         } catch (Exception e) {
             e.printStackTrace();
         }
