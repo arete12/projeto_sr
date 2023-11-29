@@ -1,27 +1,17 @@
 package com.segredes.vulnapp.model;
 
 public class ChangePic {
-    private String username;
-    private String newurl;
+    private String newUrl;
 
     public ChangePic(String username, String newurl) {
-        this.username = username;
-        this.newurl = newurl;
+        this.newUrl = newurl;
     }
 
-    public String getUsername() {
-        return username;
+    public String getNewUrl() {
+        return newUrl;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getNewurl() {
-        return newurl;
-    }
-
-    public void setNewurl(String newurl) {
-        this.newurl = newurl;
+    public void setNewUrl(String newurl) {
+        this.newUrl = newurl;
     }
 }

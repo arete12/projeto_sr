@@ -85,22 +85,20 @@
 
                 <br>
                 <form th:action="@{/api/changepic}" method="post">
-                    <input type="hidden" name="username" th:value="${#authentication.name}" />
                     <input type="text" id="url" name="newurl" placeholder="URL" />
                     <input type="submit" value="Change Picture" />
                 </form>
 
             </div>
 
-
             <br>
 
             <div class="console" sec:authorize="hasRole('ROLE_ADMIN')">
                 Admin Console:
                 <br>
-                <input type="submit" value="Export Users" />
-                <input type="submit" value="Import Users" />
-                <input type="submit" value="Launch Update" />
+                <form th:action="@{/api/export}" method="post"> <input type="submit" value="Export Users" /> </form>
+                <form th:action="@{/api/import}" method="post"> <input type="submit" value="Import Users" /> </form>
+                <form th:action="@{/api/appupdate}" method="post"> <input type="submit" value="Launch Update" /> </form>
 
             </div>
 
