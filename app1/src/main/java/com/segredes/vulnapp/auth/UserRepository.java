@@ -10,6 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+
 @Repository
 public class UserRepository {
     private static Logger logger = LoggerFactory.getLogger(UserRepository.class);
@@ -39,6 +44,14 @@ public class UserRepository {
         logger.info("findUser() - Not Found User: {}", username);
 
         return null;
+    }
+
+    public void storeState(String filename) throws FileNotFoundException, IOException {
+        FileOutputStream fos = new FileOutputStream(filename);
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(this.userDB);
+        oos.flush();
+        oos.close();
     }
 
 }
