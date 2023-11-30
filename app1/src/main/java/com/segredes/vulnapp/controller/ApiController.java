@@ -46,6 +46,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 import com.segredes.vulnapp.model.LoginReq;
 import com.segredes.vulnapp.model.ChangePic;
@@ -68,16 +71,17 @@ public class ApiController {
 
     private final AuthenticationManager authenticationManager;
     private JWTUtil jwtUtil;
+    private UserRepository userRepository;
 
     @Autowired
     private ConfigurableApplicationContext context;
 
     private static Logger logger = LoggerFactory.getLogger(ApiController.class);
 
-    public ApiController(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public ApiController(AuthenticationManager authenticationManager, JWTUtil jwtUtil, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-
+        this.userRepository = userRepository;
     }
 
     @ResponseBody
@@ -134,6 +138,66 @@ public class ApiController {
         headers.add("Location", "/");
 
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "export", method = RequestMethod.GET)
+    public ResponseEntity exportdb(HttpServletResponse response) {
+        logger.info("storeState() - Received request /api/export");
+
+        try {
+            userRepository.storeState("userDB.ser");
+
+            File file = new File("userDB.ser");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=userDB.ser");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
+            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()));
+
+            return new ResponseEntity<>(Files.readAllBytes(file.toPath()), headers, HttpStatus.OK);
+
+        } catch (IOException e) {
+            logger.error("Error storing state", e);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/");
+            return new ResponseEntity<>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
+    public ResponseEntity importUsers(@RequestParam("file") MultipartFile file, HttpServletResponse response) {
+        logger.info("importUsers() - Received request /api/import");
+
+        try {
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("Import file is empty");
+            }
+
+            // Save the uploaded file
+             String originalFilename = file.getOriginalFilename();
+            Path filePath = Paths.get(originalFilename);
+            System.out.println(filePath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            try {
+                userRepository.loadState(filePath.toString());
+            } catch (ClassNotFoundException e) {
+                logger.error("Error loading state: Class not found", e);
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/");
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
+        } catch (IOException | IllegalArgumentException e) {
+            logger.error("Error importing state", e);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/");
+            return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @ResponseBody

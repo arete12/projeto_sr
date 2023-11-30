@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
@@ -52,6 +54,13 @@ public class UserRepository {
         oos.writeObject(this.userDB);
         oos.flush();
         oos.close();
+    }
+
+    public void loadState(String filename) throws IOException, ClassNotFoundException {
+        FileInputStream fis = new FileInputStream(filename);
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        this.userDB = (HashSet<User>) ois.readObject();
+        ois.close();
     }
 
 }
