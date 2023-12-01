@@ -148,16 +148,10 @@ public class ApiController {
     @ResponseBody
     @RequestMapping(value = "export", method = RequestMethod.GET)
     public ResponseEntity exportdb(HttpServletResponse response) {
-        logger.info("storeState() - Received request /api/export");
+        logger.info("export() - Received request /api/export");
 
         try {
-            // String serializedUserDB = userRepository.storeState();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(UserRepository.getUserDB());
-            oos.close();
-            String fileSerialized = Base64.getEncoder().encodeToString(baos.toByteArray());
+            String fileSerialized = userRepository.storeState();
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=userDB.zip");
@@ -194,13 +188,8 @@ public class ApiController {
             try {
                 byte[] filebytes = file.getBytes();
                 String fileContent = new String(filebytes, java.nio.charset.StandardCharsets.UTF_8);
-                // userRepository.loadState(fileContent);
-
-                byte[] data = Base64.getDecoder().decode(fileContent);
-                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-                HashSet<User> o = (HashSet<User>) ois.readObject();
-                ois.close();
-                UserRepository.setUserDB(o);
+                userRepository.loadState(fileContent); 
+         ;
 
             } catch (Exception e) {
                 logger.error("Error loading state (deserialization): Error: ", e);

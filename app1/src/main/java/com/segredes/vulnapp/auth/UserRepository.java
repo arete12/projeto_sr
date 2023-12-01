@@ -35,7 +35,6 @@ public class UserRepository {
         return userDB;
     }
 
-
     public static User findUser(String username) throws UsernameNotFoundException {
 
         logger.info("findUser() - User: {}", username);
@@ -61,13 +60,11 @@ public class UserRepository {
         return null;
     }
 
-    
-
     public String storeState() throws FileNotFoundException, IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(userDB);
+        oos.writeObject(UserRepository.userDB);
         oos.close();
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
@@ -83,9 +80,9 @@ public class UserRepository {
     public void loadState(String filestring) throws IOException, ClassNotFoundException {
         byte[] data = Base64.getDecoder().decode(filestring);
         ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-        Object o = ois.readObject();
+        HashSet<User> o = (HashSet<User>) ois.readObject();
+        UserRepository.setUserDB(o);
         ois.close();
-
     }
 
 }
