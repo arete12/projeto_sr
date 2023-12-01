@@ -61,6 +61,14 @@
 			<version>2.3.0</version>
 		</dependency>
 
+
+		<dependency><!-- to exploit java deserialization -->
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.0</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

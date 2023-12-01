@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.Serializable;
 
 public class User implements Serializable {
+
+    private static final long serialVersionUID = 1234567L;
+
     private String username;
     private String password;
     private boolean isAdmin = false;
@@ -49,12 +52,6 @@ public class User implements Serializable {
 
     public void setAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
-    }
-
-    private void readObject(java.io.ObjectInputStream stream)
-            throws IOException, ClassNotFoundException {
-        User user = (User) stream.readObject();
-        user.getUsername();
     }
 
 }

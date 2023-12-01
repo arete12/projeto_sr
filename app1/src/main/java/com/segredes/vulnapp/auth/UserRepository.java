@@ -3,6 +3,7 @@ package com.segredes.vulnapp.auth;
 import com.segredes.vulnapp.controller.ApiController;
 import com.segredes.vulnapp.model.User;
 
+import java.util.Base64;
 import java.util.HashSet;
 
 import org.slf4j.Logger;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Repository;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
@@ -22,6 +26,15 @@ public class UserRepository {
     private static Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     private static HashSet<User> userDB = null;
+
+    public static void setUserDB(HashSet<User> userDB) {
+        UserRepository.userDB = userDB;
+    }
+
+    public static HashSet<User> getUserDB() {
+        return userDB;
+    }
+
 
     public static User findUser(String username) throws UsernameNotFoundException {
 
@@ -48,19 +61,31 @@ public class UserRepository {
         return null;
     }
 
-    public void storeState(String filename) throws FileNotFoundException, IOException {
-        FileOutputStream fos = new FileOutputStream(filename);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(this.userDB);
-        oos.flush();
+    
+
+    public String storeState() throws FileNotFoundException, IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(userDB);
         oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
-    public void loadState(String filename) throws IOException, ClassNotFoundException {
-        FileInputStream fis = new FileInputStream(filename);
-        ObjectInputStream ois = new ObjectInputStream(fis);
-        this.userDB = (HashSet<User>) ois.readObject();
+    // public void loadState(String filename) throws IOException,
+    // ClassNotFoundException {
+    // FileInputStream fis = new FileInputStream(filename);
+    // ObjectInputStream ois = new ObjectInputStream(fis);
+    // // this.userDB = (HashSet<User>) ois.readObject();
+    // ois.close();
+    // }
+
+    public void loadState(String filestring) throws IOException, ClassNotFoundException {
+        byte[] data = Base64.getDecoder().decode(filestring);
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+        Object o = ois.readObject();
         ois.close();
+
     }
 
 }

@@ -1,11 +1,15 @@
 package com.segredes.vulnapp.controller;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
@@ -18,7 +22,9 @@ import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -48,7 +54,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 import com.segredes.vulnapp.model.LoginReq;
 import com.segredes.vulnapp.model.ChangePic;
@@ -146,16 +151,20 @@ public class ApiController {
         logger.info("storeState() - Received request /api/export");
 
         try {
-            userRepository.storeState("userDB.ser");
+            // String serializedUserDB = userRepository.storeState();
 
-            File file = new File("userDB.ser");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(UserRepository.getUserDB());
+            oos.close();
+            String fileSerialized = Base64.getEncoder().encodeToString(baos.toByteArray());
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=userDB.ser");
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
-            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()));
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=userDB.zip");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/zip");
+            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSerialized.length()));
 
-            return new ResponseEntity<>(Files.readAllBytes(file.toPath()), headers, HttpStatus.OK);
+            return new ResponseEntity<>(fileSerialized, headers, HttpStatus.OK);
 
         } catch (IOException e) {
             logger.error("Error storing state", e);
@@ -176,22 +185,32 @@ public class ApiController {
             }
 
             // Save the uploaded file
-             String originalFilename = file.getOriginalFilename();
-            Path filePath = Paths.get(originalFilename);
-            System.out.println(filePath);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // String originalFilename = file.getOriginalFilename();
+            // Path filePath = Paths.get(originalFilename);
+            // System.out.println(filePath);
+            // Files.copy(file.getInputStream(), filePath,
+            // StandardCopyOption.REPLACE_EXISTING);
 
             try {
-                userRepository.loadState(filePath.toString());
-            } catch (ClassNotFoundException e) {
-                logger.error("Error loading state: Class not found", e);
+                byte[] filebytes = file.getBytes();
+                String fileContent = new String(filebytes, java.nio.charset.StandardCharsets.UTF_8);
+                // userRepository.loadState(fileContent);
+
+                byte[] data = Base64.getDecoder().decode(fileContent);
+                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+                HashSet<User> o = (HashSet<User>) ois.readObject();
+                ois.close();
+                UserRepository.setUserDB(o);
+
+            } catch (Exception e) {
+                logger.error("Error loading state (deserialization): Error: ", e);
             }
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", "/");
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (Exception e) {
             logger.error("Error importing state", e);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", "/");
