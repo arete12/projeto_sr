@@ -1,7 +1,10 @@
 name: Build and Release
 
 
-on: workflow_dispatch
+
+on:
+  push:
+    branches: "main"
 
 jobs:
   build:
@@ -28,6 +31,6 @@ jobs:
           prerelease: false
           automatic_release_tag: "latest"
           files: |
-            app1/target/vulnapp*.jar
+            app1/target/vulnapp-0.0.1-SNAPSHOT.jar
 
-
+ 
