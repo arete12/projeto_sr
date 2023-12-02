@@ -302,7 +302,7 @@ public class ApiController {
 
         logger.info("appupdate() - Request to /api/appupdate");
 
-        String githubUrl = "https://github.com/arete12/?app.jar";
+        String githubUrl = "https://github.com/arete12/projeto_sr/releases/download/latest/vulnapp-0.0.1-SNAPSHOT.jar";
         String newPackagePath = "NEW-vulnapp-0.0.1-SNAPSHOT.jar";
 
         disableSSLCertificateValidation(); // Ignore SSL/TLS errors, self-signed certs
