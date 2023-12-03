@@ -27,7 +27,6 @@ services:
     networks:
       - backend
 
-
 networks:
   frontend:
     internal: false

@@ -47,7 +47,8 @@ public class SecurityConfig {
         logger.info("securityFilterChain() - Setup route security");
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/login", "/api/login", "/favicon.ico", "/actuator/health").permitAll()
+                        .requestMatchers("/login", "/api/login", "/api/logout", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/changepic").authenticated()
                         .requestMatchers("/api/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
