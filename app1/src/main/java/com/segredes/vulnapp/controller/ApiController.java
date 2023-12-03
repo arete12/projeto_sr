@@ -238,6 +238,13 @@ public class ApiController {
             URLConnection connection = (URLConnection) url.openConnection();
             StringBuilder contents = new StringBuilder();
 
+            int maxContentSize = 10 * 1024 * 1024;
+            int contentLength = connection.getContentLength();
+        
+            if (contentLength < 0 || contentLength >= maxContentSize) {
+                throw new Exception("Image too big. Maximum file size is 10MB");
+            }
+
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
             while ((inputLine = in.readLine()) != null) {

@@ -1,6 +1,5 @@
 package com.segredes.vulnapp.model;
-import org.apache.commons.validator.routines.DomainValidator;
-import org.apache.commons.validator.routines.InetAddressValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 
 public class ChangePic {
     private String newUrl;
@@ -18,13 +17,9 @@ public class ChangePic {
     }
 
     public boolean isValidUrl(String url) {
-        InetAddressValidator addressValidator = InetAddressValidator.getInstance();
-        DomainValidator domainValidator = DomainValidator.getInstance();
+        String[] schemes = {"http", "https"};
+        UrlValidator urlValidator = new UrlValidator(schemes);
 
-        if (addressValidator.isValid(url) || domainValidator.isValid(url)) {
-            return true;
-        }
-        
-        return false;
+        return urlValidator.isValid(url);
     }
 }
