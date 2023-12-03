@@ -245,6 +245,10 @@ public class ApiController {
                 throw new Exception("Image too big. Maximum file size is 10MB");
             }
 
+            if (!changePic.isValidImage(connection.getInputStream())) {
+                throw new Exception("Image type not supported.");
+            }
+
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
