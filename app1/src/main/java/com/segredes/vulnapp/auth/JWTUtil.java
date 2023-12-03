@@ -23,13 +23,14 @@ public class JWTUtil {
     private static Logger logger = LoggerFactory.getLogger(JWTUtil.class);
 
     private final JwtParser jwtParser;
-    // private final String secret_key = "password123"; // TODO: Security Patch
+    private final String secret_key = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32); // TODO:
+                                                                                                                   // Security
+                                                                                                                   // Patch
     public static int accessTokenValidity = 60 * 60;
 
     public JWTUtil() {
-        // this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security
-        // Patch
-        this.jwtParser = Jwts.parser();
+        this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security Patch
+        // this.jwtParser = Jwts.parser();
     }
 
     public String createToken(User user) {
@@ -37,7 +38,6 @@ public class JWTUtil {
         logger.info("createToken() - User: {}", user.getUsername());
 
         Claims claims = Jwts.claims().setSubject(user.getUsername());
-        // claims.put("isAdmin", user.getAdmin());
         claims.put("picUrl", user.getPicUrl());
 
         Date tokenCreateTime = new Date();
@@ -45,14 +45,13 @@ public class JWTUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(tokenValidity)
-                // .signWith(SignatureAlgorithm.HS256, secret_key) // TODO: Security Patch
+                .signWith(SignatureAlgorithm.HS256, secret_key) // TODO: Security Patch
                 .compact();
     }
 
     private Claims parseJwtClaims(String token) {
-        logger.info("parseJwtClaims() - Token: {}", token);
-        return jwtParser.parseClaimsJwt(token).getBody();
-        // return jwtParser.parseClaimsJws(token).getBody(); // TODO: Security Patch
+        logger.info("parseJwsClaims() - Token: {}", token);
+        return jwtParser.parseClaimsJws(token).getBody(); // TODO: Security Patch
     }
 
     public Claims resolveClaims(HttpServletRequest req) {

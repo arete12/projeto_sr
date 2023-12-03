@@ -81,6 +81,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
             }
 
+            filterChain.doFilter(request, response);
+
         } catch (Exception e) {
             logger.info("doFilterInternal() - Exception: {}", e);
 
@@ -91,6 +93,5 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             mapper.writeValue(response.getWriter(), errorDetails);
 
         }
-        filterChain.doFilter(request, response);
     }
 }
