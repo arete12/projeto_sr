@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -26,6 +27,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -62,6 +65,8 @@ import com.segredes.vulnapp.model.User;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.segredes.vulnapp.VulnappApplication;
 import com.segredes.vulnapp.auth.JWTUtil;
 import com.segredes.vulnapp.auth.UserRepository;
@@ -150,22 +155,19 @@ public class ApiController {
     public ResponseEntity exportdb(HttpServletResponse response) {
         logger.info("export() - Received request /api/export");
 
-        try {
-            String fileSerialized = userRepository.storeState();
+        // TODO: Security Patch - Convert to JSON format instead of serialized
+        // String fileSerialized = userRepository.storeState();
+        Type setType = new TypeToken<HashSet<User>>() {
+        }.getType();
+        Gson gson = new Gson();
+        String jsonDb = gson.toJson(UserRepository.getUserDB(), setType);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=userDB.zip");
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/zip");
-            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSerialized.length()));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=userDB.json");
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+        headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(jsonDb.length()));
 
-            return new ResponseEntity<>(fileSerialized, headers, HttpStatus.OK);
-
-        } catch (IOException e) {
-            logger.error("Error storing state", e);
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/");
-            return new ResponseEntity<>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(jsonDb, headers, HttpStatus.OK);
     }
 
     @ResponseBody
@@ -178,22 +180,26 @@ public class ApiController {
                 throw new IllegalArgumentException("Import file is empty");
             }
 
-            // Save the uploaded file
-            // String originalFilename = file.getOriginalFilename();
-            // Path filePath = Paths.get(originalFilename);
-            // System.out.println(filePath);
-            // Files.copy(file.getInputStream(), filePath,
-            // StandardCopyOption.REPLACE_EXISTING);
+            // TODO: Security Patch - Convert from JSON to object
 
-            try {
-                byte[] filebytes = file.getBytes();
-                String fileContent = new String(filebytes, java.nio.charset.StandardCharsets.UTF_8);
-                userRepository.loadState(fileContent); 
-         ;
+            // try {
+            // byte[] filebytes = file.getBytes();
+            // String fileContent = new String(filebytes,
+            // java.nio.charset.StandardCharsets.UTF_8);
+            // userRepository.loadState(fileContent);
 
-            } catch (Exception e) {
-                logger.error("Error loading state (deserialization): Error: ", e);
-            }
+            // } catch (Exception e) {
+            // logger.error("Error loading state (deserialization): Error: ", e);
+            // }
+
+            Type setType = new TypeToken<HashSet<User>>() {
+            }.getType();
+            Gson gson = new Gson();
+            byte[] filebytes = file.getBytes();
+            String fileContent = new String(filebytes, java.nio.charset.StandardCharsets.UTF_8);
+            HashSet<User> importedDb = gson.fromJson(fileContent, setType);
+
+            UserRepository.setUserDB(importedDb);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", "/");

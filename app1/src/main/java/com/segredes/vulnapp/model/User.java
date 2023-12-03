@@ -2,14 +2,20 @@ package com.segredes.vulnapp.model;
 
 import java.io.IOException;
 import java.io.Serializable;
+import com.google.gson.annotations.SerializedName;
 
-public class User implements Serializable {
+public class User {
 
-    private static final long serialVersionUID = 1234567L;
-
+    @SerializedName("username")
     private String username;
+
+    @SerializedName("password")
     private String password;
+
+    @SerializedName("isAdmin")
     private boolean isAdmin = false;
+
+    @SerializedName("picUrl")
     private String picUrl = null;
 
     public User(String username, String password) {
