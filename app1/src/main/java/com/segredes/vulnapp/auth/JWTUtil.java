@@ -26,7 +26,7 @@ public class JWTUtil {
     private final String secret_key = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32); // TODO:
                                                                                                                    // Security
                                                                                                                    // Patch
-    public static int accessTokenValidity = 60 * 60;
+    public static int accessTokenValidity = 60 * 8; // 60 mins * 8 = 8 hours
 
     public JWTUtil() {
         this.jwtParser = Jwts.parser().setSigningKey(secret_key); // TODO: Security Patch
