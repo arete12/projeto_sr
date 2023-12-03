@@ -48,6 +48,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/login", "/api/login", "/favicon.ico", "/actuator/health").permitAll()
+                        .requestMatchers("/api/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
                 .formLogin((form) -> form

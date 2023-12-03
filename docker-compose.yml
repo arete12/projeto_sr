@@ -24,8 +24,6 @@ services:
 
   app2:
     build: app2
-    ports:
-    - "80"
     networks:
       - backend
 
