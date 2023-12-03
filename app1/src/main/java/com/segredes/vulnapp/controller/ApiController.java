@@ -228,6 +228,11 @@ public class ApiController {
         String newImageURL = changePic.getNewUrl();
 
         try {
+
+            if (!changePic.isValidUrl(newImageURL)) {
+                throw new Exception("Invalid URL format");
+            }
+
             URL url = new URL(newImageURL);
 
             URLConnection connection = (URLConnection) url.openConnection();
