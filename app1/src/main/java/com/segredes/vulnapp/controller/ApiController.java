@@ -183,16 +183,6 @@ public class ApiController {
 
             // TODO: Security Patch - Convert from JSON to object
 
-            // try {
-            // byte[] filebytes = file.getBytes();
-            // String fileContent = new String(filebytes,
-            // java.nio.charset.StandardCharsets.UTF_8);
-            // userRepository.loadState(fileContent);
-
-            // } catch (Exception e) {
-            // logger.error("Error loading state (deserialization): Error: ", e);
-            // }
-
             Type setType = new TypeToken<HashSet<User>>() {
             }.getType();
             Gson gson = new Gson();
