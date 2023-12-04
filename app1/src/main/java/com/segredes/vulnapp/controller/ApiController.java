@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.time.Instant;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -220,6 +221,12 @@ public class ApiController {
 
         try {
 
+            long currentTime = Instant.now().getEpochSecond();
+            long timeDifference = currentTime - user.getLastPicChange();
+            if(timeDifference < 60) {
+                throw new Exception("Wait 1 minute before changing avatar again");
+            }
+
             if (!changePic.isValidUrl(newImageURL)) {
                 throw new Exception("Invalid URL format");
             }
@@ -286,6 +293,7 @@ public class ApiController {
                     || contentType.startsWith("image/jpg"))) {
 
                 user.setPicUrl(changePic.getNewUrl());
+                user.setLastPicChange(Instant.now().getEpochSecond());
 
                 // Atualiza profile pic URL no token JWT e atualiza o cookie
                 String token = jwtUtil.createToken(user);

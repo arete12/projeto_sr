@@ -3,6 +3,7 @@ package com.segredes.vulnapp.model;
 import java.io.IOException;
 import java.io.Serializable;
 import com.google.gson.annotations.SerializedName;
+import java.time.Instant;
 
 public class User {
 
@@ -17,6 +18,9 @@ public class User {
 
     @SerializedName("picUrl")
     private String picUrl = null;
+
+    @SerializedName("lastPicChange")
+    private long lastPicChange = Instant.EPOCH.getEpochSecond();
 
     public User(String username, String password) {
         this.username = username;
@@ -38,6 +42,14 @@ public class User {
 
     public void setPicUrl(String picUrl) {
         this.picUrl = picUrl;
+    }
+
+    public long getLastPicChange() {
+        return lastPicChange;
+    }
+
+    public void setLastPicChange(long lastPicChange) {
+        this.lastPicChange = lastPicChange;
     }
 
     public void setUsername(String username) {
