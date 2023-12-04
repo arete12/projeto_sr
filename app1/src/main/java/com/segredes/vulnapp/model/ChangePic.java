@@ -35,7 +35,7 @@ public class ChangePic {
 
         // Compare the read bytes with known magic byte patterns for image formats
         return bytesRead >= 4 && Arrays.equals(magicBytes, new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0})
-                || Arrays.equals(magicBytes, new byte[]{(byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47})
+                || Arrays.equals(magicBytes, new byte[]{(byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47});
 
     }
 }

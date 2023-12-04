@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -235,12 +236,22 @@ public class ApiController {
 
             URL url = new URL(newImageURL);
 
+            // Valida se host e IP privado
+            byte[] hostAddress = InetAddress.getByName(url.getHost()).getAddress();
+            if ((hostAddress[0] == 10) ||
+                    (hostAddress[0] == 172 && (hostAddress[1] >= 16 && hostAddress[1] <= 31)) ||
+                    (hostAddress[0] == 192 && hostAddress[1] == 168) ||
+                    (hostAddress[0] == 127)) {
+                throw new Exception(url + " is a private IP address.");
+            }
+
+            // Faz o request ao URL
             URLConnection connection = (URLConnection) url.openConnection();
             StringBuilder contents = new StringBuilder();
 
             int maxContentSize = 10 * 1024 * 1024;
             int contentLength = connection.getContentLength();
-        
+
             if (contentLength < 0 || contentLength >= maxContentSize) {
                 throw new Exception("Image too big. Maximum file size is 10MB");
             }
@@ -261,13 +272,14 @@ public class ApiController {
             // https://www.akto.io/blog/how-to-prevent-server-side-request-forgery-ssrf-as-a-developer
 
             /*
-             * validar se url é http/https e é válido, regex, URL scheme
+             * validar se url é http/https e é válido, regex, URL scheme - OK
              * validar se é IP, ou domain name e resolver, n pode ser IP privado (tipo
-             * 192.168 ou 10.x.x etc)
+             * 192.168 ou 10.x.x etc) - OK
              * 
-             * validar se o content type é png ou jpg
+             * validar se o content type é png ou jpg - OK
              * validar o tamanho em bytes da resposta, max imagens até 1 ou 10mb por exemplo
-             * validar magic bytes (primeiros X bytes são de ficheiro png ou jpg)
+             * - OK
+             * validar magic bytes (primeiros X bytes são de ficheiro png ou jpg) - OK
              * criar um temporizador para dar delay ao utilizador, evitar que mude imagem
              * 1000 vezes em 3 segundos = 1000 requests
              * 
