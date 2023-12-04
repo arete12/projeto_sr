@@ -4,7 +4,7 @@ name: Build and Release
 
 on:
   push:
-    branches: "*"
+    branches: "patch"
 
 jobs:
   build:
@@ -22,8 +22,21 @@ jobs:
           server-id: github 
           settings-path: ${{ github.workspace }}
 
-      - name: Build with Maven
-        run: mvn -B package --file app1/pom.xml
+
+      - name: Decode Keystore
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: 'keystore/server-keystore.jks'
+          encodedString: ${{ secrets.KEYSTORE }}
+
+
+      - name: Build with Maven and Sign JAR
+        run: mvn -B package --file app1/pom.xml 
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+    
    
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
