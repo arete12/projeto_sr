@@ -30,7 +30,7 @@ jobs:
 
       - name: Build with Maven and Sign JAR
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         run: |
             mvn -B package --file app1/pom.xml 
