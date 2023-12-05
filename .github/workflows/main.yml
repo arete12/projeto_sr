@@ -33,7 +33,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         run: |
-            mvn -B package --file app1/pom.xml 
+            mvn -X -B package --file app1/pom.xml 
    
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
