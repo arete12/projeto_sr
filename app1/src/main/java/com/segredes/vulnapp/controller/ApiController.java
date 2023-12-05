@@ -1,9 +1,11 @@
 package com.segredes.vulnapp.controller;
 
+import java.security.Signature;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,13 +23,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.time.Instant;
@@ -223,7 +230,7 @@ public class ApiController {
 
             long currentTime = Instant.now().getEpochSecond();
             long timeDifference = currentTime - user.getLastPicChange();
-            if(timeDifference < 60) {
+            if (timeDifference < 60) {
                 throw new Exception("Wait 1 minute before changing avatar again");
             }
 
@@ -354,11 +361,20 @@ public class ApiController {
 
         }
 
+
+
+
+
+
         // TODO: Security patch - Updates: Verify if new .jar is signed before updating
+
+
+
 
         // Update app package
         Path sourceFilePath = Paths.get(newPackagePath);
-        Path targetFilePath = Paths.get("vulnapp-0.0.1-SNAPSHOT.jar");
+        Path targetFilePath = Paths.get(
+                "vulnapp-0.0.1-SNAPSHOT.jar");
         Files.move(sourceFilePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
 
         logger.info("appupdate() - Exiting application...");

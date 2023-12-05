@@ -98,8 +98,8 @@
 				</executions>
 				<configuration>
 					<keystore>../keystore/server-keystore.jks</keystore>
-					<alias>${env.SIGNING_KEY_ALIAS}</alias>
-					<storepass>${env.SIGNING_KEYSTORE_PASSWORD}</storepass>
+					<alias>${env.KEYSTORE_ALIAS}</alias>
+					<storepass>${env.KEYSTORE_PASSWORD}</storepass>
 					<!--<keypass>Key password</keypass>-->
 				</configuration>
 			</plugin>
