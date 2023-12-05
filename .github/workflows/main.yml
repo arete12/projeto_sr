@@ -20,13 +20,14 @@ jobs:
           distribution: 'temurin'
           server-id: github 
           settings-path: ${{ github.workspace }}
-
+      
       - name: Decode Keystore
-        id: decode_keystore
-        uses: timheuer/base64-to-file@v1
-        with:
-          fileName: 'keystore/server-keystore.jks'
-          encodedString: ${{ secrets.KEYSTORE }}
+        env:
+            ENCODED_STRING: ${{ secrets.KEYSTORE }}
+        run: |
+            TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+            mkdir "${TMP_KEYSTORE_FILE_PATH}"
+            echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/signing-keystore.jks
 
       - name: Build with Maven and Sign JAR
         env:
