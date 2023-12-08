@@ -1,57 +1,36 @@
 package com.segredes.vulnapp.controller;
 
-import java.security.Signature;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.time.Instant;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.tomcat.util.descriptor.web.ContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,25 +39,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import com.segredes.vulnapp.model.LoginReq;
-import com.segredes.vulnapp.model.ChangePic;
-import com.segredes.vulnapp.model.LoginRes;
-import com.segredes.vulnapp.model.User;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.segredes.vulnapp.VulnappApplication;
 import com.segredes.vulnapp.auth.JWTUtil;
 import com.segredes.vulnapp.auth.UserRepository;
+import com.segredes.vulnapp.model.ChangePic;
+import com.segredes.vulnapp.model.LoginReq;
+import com.segredes.vulnapp.model.User;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -343,6 +319,7 @@ public class ApiController {
 
         String githubUrl = "https://github.com/arete12/projeto_sr/releases/download/latest/vulnapp-0.0.1-SNAPSHOT.jar";
         String newPackagePath = "NEW-vulnapp-0.0.1-SNAPSHOT.jar";
+        String keystorePath = "client-truststore.jks";
 
         disableSSLCertificateValidation(); // Ignore SSL/TLS errors, self-signed certs
 
@@ -361,21 +338,42 @@ public class ApiController {
 
         }
 
-
-
-
-
-
         // TODO: Security patch - Updates: Verify if new .jar is signed before updating
 
+        boolean validSignature = false;
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "jarsigner",
+                    "-verify",
+                    "-keystore", keystorePath,
+                    "-storepass", "654321", // certificate is public
+                    newPackagePath,
+                    "-strict");
 
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                logger.info("appupdate() - Verification successful. The JAR file is authentic!");
+                validSignature = true;
+            } else {
+                logger.info("appupdate() - Verification FAILED.");
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        if (validSignature) {
+            // Update app package
+            logger.info("appupdate() - Installing the update...");
 
-        // Update app package
-        Path sourceFilePath = Paths.get(newPackagePath);
-        Path targetFilePath = Paths.get(
-                "vulnapp-0.0.1-SNAPSHOT.jar");
-        Files.move(sourceFilePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+            Path sourceFilePath = Paths.get(newPackagePath);
+            Path targetFilePath = Paths.get(
+                    "vulnapp-0.0.1-SNAPSHOT.jar");
+            Files.move(sourceFilePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            logger.info("appupdate() - Update NOT installed.");
+        }
 
         logger.info("appupdate() - Exiting application...");
         // context.close();
