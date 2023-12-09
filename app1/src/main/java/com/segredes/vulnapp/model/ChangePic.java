@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class ChangePic {
     private String newUrl;
 
@@ -37,5 +41,24 @@ public class ChangePic {
         return bytesRead >= 4 && Arrays.equals(magicBytes, new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0})
                 || Arrays.equals(magicBytes, new byte[]{(byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47});
 
+    }
+
+    public static boolean verifyJarSignature(String jarFilePath) {
+        try {
+            Process process = Runtime.getRuntime().exec("jarsigner -verify " + jarFilePath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("jar verified")) {
+                    return true;
+                }
+            }
+        
+            return false; 
+
+        } catch (IOException e) {
+            System.out.println("cheguei");
+            return false;
+        }
     }
 }

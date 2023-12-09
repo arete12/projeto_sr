@@ -362,25 +362,21 @@ public class ApiController {
         }
 
 
+        // Security patch - Updates: Verify if new .jar is signed before updating - OK
+        if (ChangePic.verifyJarSignature(newPackagePath)) {
 
-
-
-
-        // TODO: Security patch - Updates: Verify if new .jar is signed before updating
-
-
-
-
-        // Update app package
-        Path sourceFilePath = Paths.get(newPackagePath);
-        Path targetFilePath = Paths.get(
+            Path sourceFilePath = Paths.get(newPackagePath);
+            Path targetFilePath = Paths.get(
                 "vulnapp-0.0.1-SNAPSHOT.jar");
-        Files.move(sourceFilePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(sourceFilePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
 
-        logger.info("appupdate() - Exiting application...");
-        // context.close();
-        System.exit(0);
-    }
+            logger.info("appupdate() - JAR verified. Exiting application...");
+            // context.close();
+            System.exit(0);
+        } else {
+            logger.error("appupdate() - JAR signature verification failed. Aborting update.");
+}
+        }
 
     private void disableSSLCertificateValidation() {
         try {
