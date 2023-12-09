@@ -57,7 +57,6 @@ public class ChangePic {
             return false; 
 
         } catch (IOException e) {
-            System.out.println("cheguei");
             return false;
         }
     }
