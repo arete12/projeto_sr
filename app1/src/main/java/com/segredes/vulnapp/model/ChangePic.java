@@ -43,21 +43,4 @@ public class ChangePic {
 
     }
 
-    public static boolean verifyJarSignature(String jarFilePath) {
-        try {
-            Process process = Runtime.getRuntime().exec("jarsigner -verify " + jarFilePath);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("jar verified")) {
-                    return true;
-                }
-            }
-        
-            return false; 
-
-        } catch (IOException e) {
-            return false;
-        }
-    }
 }

@@ -365,20 +365,20 @@ public class ApiController {
 
         if (validSignature) {
             // Update app package
-            logger.info("appupdate() - Installing the update...");
-
+            logger.info("appupdate() - JAR verified. Installing the update...");
             Path sourceFilePath = Paths.get(newPackagePath);
             Path targetFilePath = Paths.get(
                     "vulnapp-0.0.1-SNAPSHOT.jar");
             Files.move(sourceFilePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
-        } else {
-            logger.info("appupdate() - Update NOT installed.");
-        }
 
-        logger.info("appupdate() - Exiting application...");
+            logger.info("appupdate() - Exiting application...");
             // context.close();
             System.exit(0);
+        } else {
+            logger.error("appupdate() - JAR signature verification failed. Aborting update.");
         }
+
+    }
 
     private void disableSSLCertificateValidation() {
         try {
