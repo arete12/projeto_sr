@@ -376,9 +376,9 @@ public class ApiController {
         }
 
         logger.info("appupdate() - Exiting application...");
-        // context.close();
-        System.exit(0);
-    }
+            // context.close();
+            System.exit(0);
+        }
 
     private void disableSSLCertificateValidation() {
         try {
