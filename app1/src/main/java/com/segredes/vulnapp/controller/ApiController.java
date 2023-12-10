@@ -199,7 +199,18 @@ public class ApiController {
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = UserRepository.findUser(username);
 
-        // Validar se o URL e de uma imagem valida, senao mostra erro
+        // TODO: Security Patch - Prevent SSRF
+
+        /*
+         * validar se url é http/https e é válido, regex, URL scheme - OK
+         * validar se é IP, ou domain name e resolver, n pode ser IP privado (192.168, 10.x.x etc) - OK
+         * validar se o content type é png ou jpg - OK
+         * validar o tamanho em bytes da resposta, max imagens até 1 ou 10mb por exemplo - OK
+         * validar magic bytes (primeiros X bytes são de ficheiro png ou jpg) - OK
+         * criar um temporizador para delay, evitar alterar img 1000 vezes em 3 segundos - OK
+         * fazer re-encoding da img usando alguma lib (e.g. resize img para 100x100 px)
+         */
+
         String newImageURL = changePic.getNewUrl();
 
         try {
@@ -246,28 +257,6 @@ public class ApiController {
                 contents.append(inputLine);
             }
             in.close();
-
-            // TODO: Security Patch - Prevent SSRF
-
-            // https://www.akto.io/blog/how-to-prevent-server-side-request-forgery-ssrf-as-a-developer
-
-            /*
-             * validar se url é http/https e é válido, regex, URL scheme - OK
-             * validar se é IP, ou domain name e resolver, n pode ser IP privado (tipo
-             * 192.168 ou 10.x.x etc) - OK
-             * 
-             * validar se o content type é png ou jpg - OK
-             * validar o tamanho em bytes da resposta, max imagens até 1 ou 10mb por exemplo
-             * - OK
-             * validar magic bytes (primeiros X bytes são de ficheiro png ou jpg) - OK
-             * criar um temporizador para dar delay ao utilizador, evitar que mude imagem
-             * 1000 vezes em 3 segundos = 1000 requests
-             * 
-             * fazer conversão ou re-encoding da imagem usando alguma lib, tipo mudar
-             * tamanho img para 100x100 px
-             * 
-             * 
-             */
 
             String contentType = connection.getHeaderField("Content-Type");
 
@@ -325,7 +314,6 @@ public class ApiController {
 
         URL url = new URL(githubUrl);
         URLConnection connection = (URLConnection) url.openConnection();
-
         try (InputStream inputStream = connection.getInputStream();
                 FileOutputStream outputStream = new FileOutputStream(newPackagePath)) {
 
@@ -335,11 +323,9 @@ public class ApiController {
                 outputStream.write(buffer, 0, bytesRead);
             }
             logger.info("appupdate() - File downloaded!");
-
         }
 
         // TODO: Security patch - Updates: Verify if new .jar is signed before updating
-
         boolean validSignature = false;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
